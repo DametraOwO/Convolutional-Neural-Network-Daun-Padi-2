@@ -1,15 +1,28 @@
 import os
 import shutil
+import gdown  # Tambahkan gdown untuk mengunduh dari Google Drive
 from flask import Flask, render_template, request, jsonify
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 
 app = Flask(__name__)
 
+# Kamus untuk klasifikasi
 dic = {0: 'Bercak Cokelat',  
        1: 'Busuk Daun',
        2: 'Hawar Daun Bakteri'}
 
+# Download model dari Google Drive jika belum ada di folder
+def download_model():
+    model_file = 'Convolution UAS-Batik Exception-66.66.h5'
+    if not os.path.exists(model_file):
+        url = 'https://drive.google.com/uc?id=1FEx-zhHb5D00W5vDmfZfGkm9I2pebHUb'  # URL Google Drive model Anda
+        gdown.download(url, model_file, quiet=False)
+
+# Pastikan model diunduh sebelum digunakan
+download_model()
+
+# Memuat model
 model = load_model('Convolution UAS-Batik Exception-66.66.h5')
 
 def predict_label(img_path):

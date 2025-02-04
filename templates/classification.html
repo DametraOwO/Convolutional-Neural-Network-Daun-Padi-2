@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klasifikasi Penyakit Daun Padi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f8e9;
+        }
+
+        .container {
+            margin-top: 40px;
+            max-width: 800px; /* Mengatur lebar container utama */
+        }
+
+        .header {
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .input-container, .result-container {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-container {
+            background-color: #ffffff;
+            border: 2px solid #ddd;
+        }
+
+        .result-container {
+            background-color: #e7f7e7;
+            border: 2px solid #c8e6c9;
+        }
+
+        .img-preview {
+            max-width: 100%;
+            max-height: 250px;
+            margin-top: 15px;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Klasifikasi Penyakit Daun Padi</h1>
+        </div>
+
+        <!-- Input Image -->
+        <div class="input-container">
+            <h3>Masukkan Gambar Daun Padi</h3>
+            <form action="/submit" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="my_image">Upload Gambar</label>
+                    <input type="file" class="form-control-file" id="my_image" name="my_image" required>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Upload Gambar</button>
+            </form>
+        </div>
+
+        <!-- Classification Result -->
+        {% if prediction %}
+        <div class="result-container" id="result-container">
+            <h3>Hasil Klasifikasi</h3>
+            <button class="close-btn" onclick="closeResult()">X</button>
+            <p><strong>Prediksi: </strong>{{ prediction }}</p>
+            <p><strong>Gambar: </strong><img src="{{ img_path }}" alt="Uploaded Image" class="img-preview"></p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Function to hide the result container and delete the uploaded image when 'X' is clicked
+        function closeResult() {
+            var imgFilename = "{{ img_filename }}"; // Ambil nama file gambar
+            if (imgFilename) {
+                // Kirim request ke Flask untuk menghapus file
+                fetch('/delete_image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 'filename': imgFilename })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Image deleted:', data);
+                })
+                .catch(error => {
+                    console.error('Error deleting image:', error);
+                });
+            }
+
+            // Sembunyikan container hasil
+            document.getElementById('result-container').style.display = 'none';
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
